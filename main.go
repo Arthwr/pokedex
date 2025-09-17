@@ -13,7 +13,9 @@ func main() {
 
 	for {
 		fmt.Print("Pokedex > ")
-		scanner.Scan()
+		if !scanner.Scan() {
+			break
+		}
 
 		text := cleanInput(scanner.Text())
 		if len(text) == 0 {

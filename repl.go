@@ -4,9 +4,24 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+
+	"github.com/arthwr/pokedex/internal/pokeapi"
 )
 
-func runREPL(cfg *Config) {
+type config struct {
+	pokeapiClient       pokeapi.Client
+	nextLocationURL     *string
+	previousLocationURL *string
+}
+
+type cliCommand struct {
+	name        string
+	description string
+	callback    func(c *config) error
+}
+
+func runREPL(cfg *config) {
+	commands := getCommands()
 	scanner := bufio.NewScanner(os.Stdin)
 
 	for {
@@ -20,8 +35,9 @@ func runREPL(cfg *Config) {
 			continue
 		}
 
-		cmd, ok := commands[text[0]]
-		if !ok {
+		commandName := text[0]
+		cmd, exists := commands[commandName]
+		if !exists {
 			fmt.Println("Unknown command. Type 'help' for available commands.")
 			continue
 		}
@@ -29,5 +45,30 @@ func runREPL(cfg *Config) {
 		if err := cmd.callback(cfg); err != nil {
 			fmt.Println("Error:", err)
 		}
+	}
+}
+
+func getCommands() map[string]cliCommand {
+	return map[string]cliCommand{
+		"exit": {
+			name:        "exit",
+			description: "Exit the Pokedex",
+			callback:    commandExit,
+		},
+		"help": {
+			name:        "help",
+			description: "Displays help message",
+			callback:    commandHelp,
+		},
+		"map": {
+			name:        "map",
+			description: "Lists next 20 locations from Pokemon World",
+			callback:    commandListNextLocations,
+		},
+		"mapb": {
+			name:        "mapb",
+			description: "Lists previous 20 locations from Pokemon World",
+			callback:    commandListPrevLocations,
+		},
 	}
 }

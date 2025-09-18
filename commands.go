@@ -1,78 +1,59 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 )
 
-type cliCommand struct {
-	name        string
-	description string
-	callback    func(c *Config) error
-}
-
-type LocationResponse struct {
-	Count    int     `json:"count"`
-	Next     *string `json:"next"`
-	Previous *string `json:"previous"`
-	Results  []struct {
-		Name string `json:"name"`
-		URL  string `json:"url"`
-	} `json:"results"`
-}
-
-type Config struct {
-	Next     string
-	Previous string
-}
-
-var commands map[string]cliCommand
-
-func setupCommands() {
-	commands = map[string]cliCommand{
-		"exit": {
-			name:        "exit",
-			description: "Exit the Pokedex",
-			callback:    commandExit,
-		},
-		"help": {
-			name:        "help",
-			description: "Displays help message",
-			callback:    commandHelp,
-		},
-		"map": {
-			name:        "map",
-			description: "Lists next 20 locations from Pokemon World",
-			callback:    commandListNextLocations,
-		},
-		"mapb": {
-			name:        "mapb",
-			description: "Lists previous 20 locations from Pokemon World",
-			callback:    commandListPrevLocations,
-		},
-	}
-}
-
-func commandExit(c *Config) error {
+func commandExit(c *config) error {
 	fmt.Println("Closing the Pokedex... Goodbye!")
 	os.Exit(0)
 	return nil
 }
 
-func commandHelp(c *Config) error {
+func commandHelp(c *config) error {
 	fmt.Println("Welcome to the Pokedex!")
 	fmt.Println("Usage:")
 
-	for _, cmd := range commands {
+	for _, cmd := range getCommands() {
 		fmt.Printf("  %-5s : %s\n", cmd.name, cmd.description)
 	}
 	return nil
 }
 
-func commandListNextLocations(c *Config) error {
-	return fetchAndPrintLocations(c, c.Next)
+func commandListNextLocations(c *config) error {
+	locations, err := c.pokeapiClient.FetchLocations(c.nextLocationURL)
+	if err != nil {
+		return err
+	}
+
+	c.nextLocationURL = locations.Next
+	c.previousLocationURL = locations.Previous
+
+	for _, loc := range locations.Results {
+		fmt.Printf("  %s\n", loc.Name)
+	}
+
+	return nil
 }
 
-func commandListPrevLocations(c *Config) error {
-	return fetchAndPrintLocations(c, c.Previous)
+func commandListPrevLocations(c *config) error {
+	if c.previousLocationURL == nil {
+		return errors.New("you're on the first page")
+	}
+
+	locations, err := c.pokeapiClient.FetchLocations(c.previousLocationURL)
+	if err != nil {
+		return err
+	}
+
+	c.nextLocationURL = locations.Next
+	c.previousLocationURL = locations.Previous
+
+	for _, loc := range locations.Results {
+		fmt.Printf("  %s\n", loc.Name)
+	}
+
+	return nil
 }

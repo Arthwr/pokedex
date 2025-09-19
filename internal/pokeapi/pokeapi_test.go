@@ -44,7 +44,7 @@ func TestFetchLocations_CacheWorks(t *testing.T) {
 		t.Errorf("expected 1 server call, got %d", callCount)
 	}
 
-	// Second server call
+	// Second server call with expected cache hit
 	resp2, err := client.FetchLocations(&pageURL)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)

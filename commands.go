@@ -9,6 +9,7 @@ import (
 func commandExit(c *config) error {
 	fmt.Println("Closing the Pokedex... Goodbye!")
 	os.Exit(0)
+
 	return nil
 }
 
@@ -19,6 +20,7 @@ func commandHelp(c *config) error {
 	for _, cmd := range getCommands() {
 		fmt.Printf("  %-5s : %s\n", cmd.name, cmd.description)
 	}
+
 	return nil
 }
 

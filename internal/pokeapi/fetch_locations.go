@@ -49,3 +49,43 @@ func (c *Client) FetchLocations(pageURL *string) (LocationResponse, error) {
 	c.pokeCache.Add(url, data)
 	return locations, nil
 }
+
+func (c *Client) FetchEncountersFromLocation(locationID string) (EncountersResponse, error) {
+	url := baseURL + "/location-area/" + locationID
+
+	if val, ok := c.pokeCache.Get(url); ok {
+		encounters := EncountersResponse{}
+		if err := json.Unmarshal(val, &encounters); err != nil {
+			return EncountersResponse{}, err
+		}
+		return encounters, nil
+	}
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return EncountersResponse{}, err
+	}
+
+	res, err := c.httpClient.Do(req)
+	if err != nil {
+		return EncountersResponse{}, err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		return EncountersResponse{}, fmt.Errorf("unexpected HTTP status: %s", res.Status)
+	}
+
+	data, err := io.ReadAll(res.Body)
+	if err != nil {
+		return EncountersResponse{}, err
+	}
+
+	var encounters EncountersResponse
+	if err = json.Unmarshal(data, &encounters); err != nil {
+		return EncountersResponse{}, err
+	}
+
+	c.pokeCache.Add(url, data)
+	return encounters, nil
+}

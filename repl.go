@@ -76,5 +76,10 @@ func getCommands() map[string]cliCommand {
 			description: "Lists previous 20 locations from Pokemon World",
 			callback:    commandListPrevLocations,
 		},
+		"catch": {
+			name:        "catch",
+			description: "Attempt to catch requested Pokemon",
+			callback:    commandCatch,
+		},
 	}
 }

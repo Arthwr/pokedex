@@ -89,3 +89,7 @@ func (c *Client) FetchEncountersFromLocation(locationID string) (EncountersRespo
 	c.pokeCache.Add(url, data)
 	return encounters, nil
 }
+
+func (c *Client) FetchPokemon(name string) (PokemonResponse, error) {
+	return PokemonResponse{}, nil
+}

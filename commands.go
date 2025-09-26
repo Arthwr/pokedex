@@ -85,3 +85,17 @@ func commandExplore(c *config, params ...string) error {
 
 	return nil
 }
+
+func commandCatch(c *config, params ...string) error {
+	if len(params) == 0 {
+		return fmt.Errorf("usage: catch <pokemon-name>")
+	}
+
+	pokemonName := params[0]
+	pokemon, err := c.pokeapiClient.FetchPokemon(pokemonName)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

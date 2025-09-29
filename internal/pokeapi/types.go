@@ -19,4 +19,7 @@ type LocationResponse struct {
 	} `json:"results"`
 }
 
-type PokemonResponse struct{}
+type PokemonResponse struct {
+	Name           string `json:"name"`
+	BaseExperience int    `json:"base_experience"`
+}

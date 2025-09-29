@@ -97,5 +97,20 @@ func commandCatch(c *config, params ...string) error {
 		return err
 	}
 
+	isCatchSuccessful := canCatchPokemon(pokemon.BaseExperience, 635, 0.2, 0.8)
+
+	if !isCatchSuccessful {
+		fmt.Printf("You've failed to catch '%s' Pokemon! Try again!\n", pokemon.Name)
+		return nil
+	}
+
+	fmt.Printf("Success! You've caught Pokémon %s!\n", pokemonName)
+	c.pokeapiClient.StorePokemon(pokemon)
+
+	return nil
+}
+
+func commandList(c *config, _ ...string) error {
+	c.pokeapiClient.ListPokemons()
 	return nil
 }

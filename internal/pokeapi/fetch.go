@@ -90,6 +90,43 @@ func (c *Client) FetchEncountersFromLocation(locationID string) (EncountersRespo
 	return encounters, nil
 }
 
-func (c *Client) FetchPokemon(name string) (PokemonResponse, error) {
-	return PokemonResponse{}, nil
+func (c *Client) FetchPokemon(pokemonID string) (PokemonResponse, error) {
+	url := baseURL + "/pokemon/" + pokemonID
+
+	if val, ok := c.pokeCache.Get(url); ok {
+		pokemon := PokemonResponse{}
+		if err := json.Unmarshal(val, &pokemon); err != nil {
+			return PokemonResponse{}, err
+		}
+		return pokemon, nil
+	}
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return PokemonResponse{}, err
+	}
+
+	res, err := c.httpClient.Do(req)
+	if err != nil {
+		return PokemonResponse{}, err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		return PokemonResponse{},
+			fmt.Errorf("unexpected HTTP status: %s", res.Status)
+	}
+
+	data, err := io.ReadAll(res.Body)
+	if err != nil {
+		return PokemonResponse{}, err
+	}
+
+	var pokemon PokemonResponse
+	if err = json.Unmarshal(data, &pokemon); err != nil {
+		return PokemonResponse{}, err
+	}
+
+	c.pokeCache.Add(url, data)
+	return pokemon, nil
 }

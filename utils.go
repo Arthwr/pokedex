@@ -1,6 +1,7 @@
 package main
 
 import (
+	"math/rand"
 	"strings"
 )
 
@@ -18,4 +19,15 @@ func findLongestCommandName(commands map[string]cliCommand) int {
 		}
 	}
 	return maxLen
+}
+
+func canCatchPokemon(baseExp int, maxBaseExp int, minChance, maxChance float64) bool {
+	normalized := float64(baseExp) / float64(maxBaseExp)
+	chance := maxChance - (maxChance-minChance)*normalized
+
+	if chance > maxChance {
+		chance = maxChance
+	}
+
+	return rand.Float64() < chance
 }

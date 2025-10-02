@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"os"
+
+	"github.com/arthwr/pokedex/internal/pokestorage"
 )
 
 func commandExit(c *config, params ...string) error {
@@ -106,12 +108,15 @@ func commandCatch(c *config, params ...string) error {
 	}
 
 	fmt.Printf("Success! You've caught Pokemon %s!\n", pokemonName)
-	c.pokeapiClient.StorePokemon(pokemon)
+	c.pokemonStorage.Add(pokestorage.PokemonData{
+		Name:           pokemon.Name,
+		BaseExperience: pokemon.BaseExperience,
+	})
 
 	return nil
 }
 
 func commandList(c *config, _ ...string) error {
-	c.pokeapiClient.ListPokemons()
+	c.pokemonStorage.PrintList()
 	return nil
 }

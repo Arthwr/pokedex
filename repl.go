@@ -6,10 +6,12 @@ import (
 	"os"
 
 	"github.com/arthwr/pokedex/internal/pokeapi"
+	"github.com/arthwr/pokedex/internal/pokestorage"
 )
 
 type config struct {
 	pokeapiClient       pokeapi.Client
+	pokemonStorage      *pokestorage.Storage
 	nextLocationURL     *string
 	previousLocationURL *string
 }

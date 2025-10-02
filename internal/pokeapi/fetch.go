@@ -2,7 +2,11 @@ package pokeapi
 
 func (c *Client) FetchLocations(pageURL *string) (LocationResponse, error) {
 	var locations LocationResponse
-	err := c.doRequest(baseURL+"/location-area?offset=0&limit=20", &locations)
+	url := baseURL + "/location-area?offset=0&limit=20"
+	if pageURL != nil {
+		url = *pageURL
+	}
+	err := c.doRequest(url, &locations)
 	return locations, err
 }
 

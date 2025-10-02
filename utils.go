@@ -28,6 +28,9 @@ func canCatchPokemon(baseExp int, maxBaseExp int, minChance, maxChance float64) 
 	if chance > maxChance {
 		chance = maxChance
 	}
+	if chance < minChance {
+		chance = minChance
+	}
 
 	return rand.Float64() < chance
 }

@@ -1,7 +1,9 @@
 package pokeapi
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"time"
 
@@ -12,6 +14,30 @@ type Client struct {
 	httpClient   http.Client
 	pokeCache    pokecache.Cache
 	pokemonStore map[string]PokemonResponse
+}
+
+func (c *Client) doRequest(url string, target any) error {
+	if val, ok := c.pokeCache.Get(url); ok {
+		return json.Unmarshal(val, target)
+	}
+
+	res, err := c.httpClient.Get(url)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		return fmt.Errorf("unexpected HTTP status: %s", res.Status)
+	}
+
+	data, err := io.ReadAll(res.Body)
+	if err != nil {
+		return err
+	}
+
+	c.pokeCache.Add(url, data)
+	return json.Unmarshal(data, target)
 }
 
 func (c *Client) StorePokemon(pr PokemonResponse) {

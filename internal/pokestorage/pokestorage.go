@@ -1,10 +1,18 @@
 package pokestorage
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/arthwr/pokedex/internal/pokeapi"
+)
 
 type PokemonData struct {
 	Name           string
 	BaseExperience int
+	Height         int
+	Weight         int
+	Stats          []pokeapi.PokemonStats
+	Types          []pokeapi.PokemonTypes
 }
 
 type Storage struct {
